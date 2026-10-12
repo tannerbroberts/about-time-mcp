@@ -1,0 +1,32 @@
+{
+  "name": "@tannerbroberts/about-time-mcp",
+  "version": "0.1.0-alpha.0",
+  "description": "MCP server for about-time: turn goals and recipes into nested, time-sequenced, checkable plans that respect people's constraints.",
+  "type": "module",
+  "bin": {
+    "about-time-mcp": "./dist/bin.js"
+  },
+  "files": [
+    "dist",
+    "guide",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tannerbroberts/about-time-mcp.git"
+  },
+  "author": "Tanner Roberts",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "planning",
+    "recipes",
+    "scheduling",
+    "nutrition",
+    "tasks"
+  ]
+}
