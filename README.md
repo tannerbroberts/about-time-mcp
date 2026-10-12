@@ -17,4 +17,4 @@ State is stored in `$ABOUT_TIME_HOME`, or `./.about-time` if that is not set.
 
 The agent-facing guide ships with the server and is available through the `guide` tool. Agents should start with `guide("overview")`.
 
-Pin a version with `github:tannerbroberts/about-time-mcp#v0.1.0-alpha.0`. This repository holds built releases only.
+Pin a version with `github:tannerbroberts/about-time-mcp#v0.1.0-alpha.1`. This repository holds built releases only.

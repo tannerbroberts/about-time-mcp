@@ -1,10 +1,14 @@
 {
   "name": "@tannerbroberts/about-time-mcp",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "MCP server for about-time: turn goals and recipes into nested, time-sequenced, checkable plans that respect people's constraints.",
   "type": "module",
   "bin": {
     "about-time-mcp": "./dist/bin.js"
+  },
+  "main": "./dist/server.js",
+  "exports": {
+    ".": "./dist/server.js"
   },
   "files": [
     "dist",
