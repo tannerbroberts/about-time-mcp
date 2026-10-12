@@ -12,7 +12,7 @@ A plan is a JSON node. A node is one of these:
 | Field | Meaning | Example |
 |---|---|---|
 | `name` | Short, imperative | `"Whisk the batter"` |
-| `do` | Full instructions for a first-timer | `"Whisk until no dry streaks remain; a few lumps are fine."` |
+| `do` | Full instructions for a first-timer. Write `{name}` for an amount, and it shows this step's scaled amount | `"Whisk {buttermilk} into the dry mix until no dry streaks remain."` |
 | `time` | Duration or range | `"5 min"`, `"5-7 min"`, `"~90 min (60-120)"`, `"2 days"` |
 | `hands` | `"busy"` (default) or `"free"`: the person can do something else meanwhile | `"free"` |
 | `doneWhen` | How to tell it's finished. Strings, or `{text, target:{what, op, value}}` | `["Bubbles on top start to pop"]` |
@@ -20,6 +20,7 @@ A plan is a JSON node. A node is one of these:
 | `produces` | What it makes. Add `keepsFor` for perishables | `{"batter": "1 batch"}`, `{"chili": {"qty": "8 servings", "keepsFor": "3-4 days"}}` |
 | `uses` | Equipment held during the step and given back | `["griddle", "2 burner"]` |
 | `requires` | A state that must hold for the whole step | `["griddle (hot)"]` |
+| `cleans` | Equipment this step cleans or puts away. The person sees the list | `["griddle", "large bowl"]` |
 | `settings` | Parameters | `{"griddle": "375 F"}` |
 | `ifThen` | Mistake recovery | `[{"if": "Pancakes brown before bubbling", "then": "Lower heat to medium-low"}]` |
 | `safety`, `tips` | Short strings | |
@@ -82,7 +83,8 @@ or `"1 can"`. A bare number counts items.
 }
 ```
 
-- `"yields": "4 servings"` lets `analyze_plan` scale the recipe to the number of people.
+- `"yields": "4 servings"` lets `analyze_plan` scale the recipe to the number of people. Write amounts in `do` as `{name}`,
+  for example "Put {potatoes} in the pot", so the text scales too. Never leave a recipe unscaled because its text has numbers in it.
 - `"makes"` names what the recipe exists to produce.
 - A meal is a group that `use`s saved recipes:
   `{"name": "Saturday brunch", "parallel": true, "steps": [{"key": "pancakes", "use": "weekend-buttermilk-pancakes", "name": "Pancakes"}, …]}`.

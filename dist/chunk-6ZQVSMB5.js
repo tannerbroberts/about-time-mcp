@@ -36839,6 +36839,8 @@ var StepTemplateSchema = external_exports.object({
   moves: external_exports.array(MoveSchema).optional(),
   /** A trip: the step takes the person from `at` to this place (D20 Phase B1). Carrying (`moves`) is a trip too. */
   goesTo: external_exports.string().optional(),
+  /** Equipment this step cleans and puts away (design 0003 R3): the analysis checks everything used is covered. */
+  cleans: external_exports.array(ResourceRefSchema).optional(),
   instructions: external_exports.string().optional(),
   duration: DurationRangeSchema,
   /** Exponent on the scale factor: 0 = fixed (baking), 1 = linear (chopping), 0.5 = in between. */
@@ -37738,6 +37740,7 @@ function expand(lib, root, opts = {}) {
           produces: t.produces.map((f) => canonFlow(f, scale)),
           uses: t.uses.map((u) => ({ resource: canonRef(u.resource), count: u.count })),
           requires: t.requires.map((r) => ({ resource: canonRef(r.resource) })),
+          cleans: (t.cleans ?? []).map(canonRef),
           template: t
         };
         if (t.goesTo) occ.step.goesTo = canonPlace(t.goesTo) ?? "home";
@@ -38120,6 +38123,8 @@ function simulateLedger(lib, steps2, opts = {}) {
       const out = { resource: key, qty: { lo: round(Math.max(0, leftLo)), hi: round(leftHi), unit: a.unit } };
       const exp = a.lots.filter((l) => l.amount > 1e-9 && Number.isFinite(l.expiresAt)).map((l) => l.expiresAt);
       if (exp.length) out.expiresAt = Math.min(...exp);
+      const use = a.lots.filter((l) => l.amount > 1e-9 && Number.isFinite(l.useBy)).map((l) => l.useBy);
+      if (use.length) out.useBy = Math.min(...use);
       outputs.push(out);
     }
   }
@@ -38680,6 +38685,7 @@ var AuthorNodeSchema = external_exports.object({
   consumes: Flows.optional(),
   produces: Flows.optional(),
   uses: listOf(external_exports.string()).optional().describe('Equipment held during the step and returned: ["mixing bowl", "2 burner"].'),
+  cleans: listOf(external_exports.string()).optional().describe('Equipment this step cleans or puts away: ["large skillet", "cutting board"]. The person sees the list.'),
   requires: listOf(external_exports.string()).optional().describe('States that must hold for the whole step: ["car@on jack stands"].'),
   settings: external_exports.record(external_exports.string(), QuantityText).optional().describe('Parameters such as {"oven": "350 F"}.'),
   ifThen: listOf(external_exports.object({ if: external_exports.string(), then: external_exports.string() }).strict()).optional().describe("Mistake recovery: what to do if something goes wrong."),
@@ -38916,7 +38922,23 @@ function compile2(lib0, input2, opts = {}) {
       tips: node2.tips ?? [],
       tags: node2.tags ?? []
     };
-    if (node2.do) t.instructions = node2.do;
+    if (node2.do) {
+      t.instructions = node2.do;
+      const own2 = new Set([...t.consumes, ...t.produces].map((f) => f.resource));
+      const ownIds = new Set([...own2, ...t.uses.map((u) => u.resource), ...node2.moves ? Object.keys(node2.moves).map((k) => phraseToRef(lib, k)) : []].map((r) => parseRef(r).id));
+      for (const m of node2.do.matchAll(/\{([^{}]+)\}/g)) {
+        const ref = phraseToRef(lib, m[1]);
+        if (!own2.has(ref) && !ownIds.has(parseRef(ref).id)) {
+          diagnostics.push(diag(
+            "unknown-reference",
+            "error",
+            `${where}: "do" says {${m[1]}}, but this step doesn't consume, produce, carry or use "${m[1]}". A {name} is filled in with this step's amount of it, so name one of: ${[...ownIds].join(", ") || "(nothing; add it to consumes)"}.`,
+            { path: where }
+          ));
+        }
+      }
+    }
+    if (node2.cleans?.length) t.cleans = node2.cleans.map((c) => resourceRef(c, where, "equipment"));
     if (node2.moves) {
       if (!node2.to) diagnostics.push(diag("invalid-document", "error", `${where}: "moves" needs a "to" (where it is carried).`, { path: where }));
       else {
@@ -39700,6 +39722,25 @@ function analyzePlan(lib, root, opts = {}) {
       { resource: o.resource, audience: "agent" }
     ));
   }
+  {
+    const lastUse = /* @__PURE__ */ new Map();
+    for (const st of sch.steps) {
+      for (const u of st.step.uses) {
+        const id = parseRef(u.resource).id;
+        if (st.step.cleans.some((c) => parseRef(c).id === id)) continue;
+        lastUse.set(id, Math.max(lastUse.get(id) ?? -Infinity, st.end));
+      }
+    }
+    const left = [...lastUse.entries()].filter(([id, end]) => !sch.steps.some((st) => st.end >= end && st.step.cleans.some((c) => parseRef(c).id === id))).map(([id]) => formatResource(lib, id));
+    if (left.length) {
+      diagnostics.push(diag(
+        "not-cleaned",
+        "warning",
+        `Nothing cleans or puts away ${left.map((x) => `"${x}"`).join(", ")} after its last use. If the person should finish with them clean and put away, end with a step that does it and lists them in "cleans" (its time is the washing-up time).`,
+        { audience: "agent" }
+      ));
+    }
+  }
   const primary = occ.template.kind === "plan" ? occ.template.primaryOutput : void 0;
   const inputIds = new Set(contract.inputs.map((i) => parseRef(i.resource).id));
   const consumedRefs = new Set(sch.steps.flatMap((st) => st.step.consumes.map((f) => f.resource)));
@@ -39922,7 +39963,8 @@ function renderPlan(a, opts = {}, lib) {
     if (a.unconfirmedEquipment.length) lines.push(`Make sure you have (get or borrow any you don't, before you start): ${a.unconfirmedEquipment.map((r) => count(r) > 1 ? `${count(r)}\xD7 ${label(r)}` : label(r)).join(", ")}`);
     if (a.verifications.length) lines.push("Before you start, check:", ...checklist(a.verifications));
     const leftovers = a.contract.outputs;
-    if (leftovers.length) lines.push(`Leaves you with: ${leftovers.map((o) => `${formatQuantity(readableQuantity(o.qty), { human: true })} ${label(o.resource)}`).join("; ")}`);
+    const useBy = (o) => o.useBy === void 0 ? "" : opts.clock ? ` (use by ${clock(o.useBy)})` : ` (use within ${formatMs(floorForUseBy(o.useBy - s.end))} of finishing)`;
+    if (leftovers.length) lines.push(`Leaves you with: ${leftovers.map((o) => `${formatQuantity(readableQuantity(o.qty), { human: true })} ${label(o.resource)}${useBy(o)}`).join("; ")}`);
     const byC = /* @__PURE__ */ new Map();
     for (const c of a.constraints) byC.set(c.constraint.id, [...byC.get(c.constraint.id) ?? [], c]);
     for (const rs of byC.values()) {
@@ -39937,10 +39979,11 @@ function renderPlan(a, opts = {}, lib) {
   const details = (o, sub, span) => {
     const st = o.step;
     const t = st.template;
-    if (t.instructions) lines.push(`${sub}${t.instructions}`);
+    if (t.instructions) lines.push(`${sub}${lib ? fillInstructions(lib, st) : t.instructions}`);
     const cons = st.consumes.map((f) => `${formatQuantity(f.qty, { human: true })} ${label(f.resource)}`);
     if (cons.length) lines.push(`${sub}takes: ${cons.join(", ")}`);
     if (st.uses.length) lines.push(`${sub}with: ${st.uses.map((u) => label(u.resource)).join(", ")}`);
+    if (st.cleans.length) lines.push(`${sub}clean and put away: ${st.cleans.map(label).join(", ")}`);
     for (const m of st.moves) lines.push(`${sub}carry: ${formatQuantity(m.qty, { human: true })} ${label(m.resource)} \u2192 ${m.to ? label(m.to) : "home"}${m.holdsFor ? ` (keeps safe ${formatMs(m.holdsFor)})` : ""}`);
     if (Object.keys(t.params).length) lines.push(`${sub}settings: ${Object.entries(t.params).map(([k, v]) => `${k} ${formatQuantity(v)}`).join(", ")}`);
     for (const d of t.doneWhen) lines.push(`${sub}done when: ${d.text}${d.target ? ` (${d.target.what} ${d.target.op} ${formatQuantity(d.target.value)})` : ""}`);
@@ -40055,6 +40098,26 @@ function checklist(vs) {
   }
   return out;
 }
+function floorForUseBy(ms) {
+  const step = ms >= 864e5 ? 36e5 : 3e5;
+  return Math.max(0, Math.floor(ms / step) * step);
+}
+function fillInstructions(lib, step) {
+  const text2 = step.template.instructions ?? "";
+  return text2.replace(/\{([^{}]+)\}/g, (whole, name) => {
+    const amount = stepAmount(lib, step, name);
+    return amount ?? whole;
+  });
+}
+function stepAmount(lib, step, name) {
+  const ref = phraseToRef(lib, name);
+  const id = parseRef(ref).id;
+  const flows2 = [...step.consumes, ...step.produces, ...step.moves];
+  const hit = flows2.find((f) => f.resource === ref) ?? (flows2.filter((f) => parseRef(f.resource).id === id).length === 1 ? flows2.find((f) => parseRef(f.resource).id === id) : void 0);
+  if (hit) return `${formatQuantity(readableQuantity(hit.qty), { human: true })} ${formatResource(lib, hit.resource)}`;
+  const use = step.uses.find((u) => parseRef(u.resource).id === id);
+  return use ? `${use.count} ${formatResource(lib, use.resource)}` : void 0;
+}
 
 // packages/core/src/author/decompile.ts
 function decompile(lib, hash2, opts = {}) {
@@ -40088,6 +40151,7 @@ function decompile(lib, hash2, opts = {}) {
         if (t.produces.length) n.produces = flows(t.produces);
         if (t.uses.length) n.uses = t.uses.map((u) => u.count > 1 ? `${u.count} ${u.resource}` : u.resource);
         if (t.requires.length) n.requires = t.requires.map((r) => r.resource);
+        if (t.cleans?.length) n.cleans = [...t.cleans];
         if (Object.keys(t.params).length) n.settings = Object.fromEntries(Object.entries(t.params).map(([k, v]) => [k, q(v)]));
         if (t.recovery.length) n.ifThen = t.recovery.map((r) => ({ ...r }));
         if (t.safety.length) n.safety = [...t.safety];

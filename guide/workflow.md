@@ -30,6 +30,9 @@
      steps for *each* option. A person who takes the alternative gets no instructions if it only exists in your prose.
    - **Things that must happen earlier get their own time.** Buying, thawing, soaking and borrowing a tool belong in steps
      scheduled before the main event (`wait`, or `pins` such as the evening before), not at minute zero of the activity.
+   - **End with the cleanup.** A plan isn't done when the work is: finish with a step that washes, wipes and puts away
+     what was used. List those things in its `cleans` and give it a realistic time. Store leftovers with their `keepsFor`.
+     If anything used is left out, `analyze_plan` names it (**not-cleaned**).
    - **Later follow-ups** ("re-tighten the wheel nuts after 50 miles", "water the seedlings again in 3 days") get `wait: "1 day"`, so they don't land
      in the middle of today's session.
    - **Connect steps through what they share.** If a step uses something another step prepares (a hot pan, a
