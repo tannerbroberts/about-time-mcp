@@ -4625,7 +4625,7 @@ var require_core = __commonJS({
       errorsText(errors = this.errors, { separator = ", ", dataVar = "data" } = {}) {
         if (!errors || errors.length === 0)
           return "No errors";
-        return errors.map((e) => `${dataVar}${e.instancePath} ${e.message}`).reduce((text, msg) => text + separator + msg);
+        return errors.map((e) => `${dataVar}${e.instancePath} ${e.message}`).reduce((text2, msg) => text2 + separator + msg);
       }
       $dataMetaSchema(metaSchema, keywordsJsonPointers) {
         const rules = this.RULES.all;
@@ -20140,8 +20140,8 @@ function ko_default() {
 }
 
 // node_modules/zod/v4/locales/lt.js
-var capitalizeFirstCharacter = (text) => {
-  return text.charAt(0).toUpperCase() + text.slice(1);
+var capitalizeFirstCharacter = (text2) => {
+  return text2.charAt(0).toUpperCase() + text2.slice(1);
 };
 function getUnitTypeFromNumber(number4) {
   const abs = Math.abs(number4);
@@ -36507,12 +36507,12 @@ for (const [k, d] of byKey) {
   const prev = byLower.get(lk);
   byLower.set(lk, prev === void 0 || prev === d ? d : null);
 }
-function findUnit(text) {
-  const t = text.trim();
+function findUnit(text2) {
+  const t = text2.trim();
   return byKey.get(t) ?? byLower.get(t.toLowerCase()) ?? void 0;
 }
-function canonicalUnit(text) {
-  return findUnit(text)?.id ?? text.trim();
+function canonicalUnit(text2) {
+  return findUnit(text2)?.id ?? text2.trim();
 }
 function dimensionOf(unit) {
   return findUnit(unit)?.dimension;
@@ -36582,8 +36582,8 @@ var UNICODE_FRACTIONS = {
   "\u215D": 0.625,
   "\u215E": 0.875
 };
-function parseNumber(text) {
-  let t = text.trim();
+function parseNumber(text2) {
+  let t = text2.trim();
   if (t === "") return void 0;
   let extra = 0;
   const last = t[t.length - 1];
@@ -36603,8 +36603,8 @@ var NUM = String.raw`(?:\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+[½⅓⅔¼¾⅕⅛⅜�
 var RANGE_RE = new RegExp(String.raw`^~?\s*(${NUM})\s*(?:-|–|—|to)\s*(${NUM})\s*(.*)$`, "i");
 var SINGLE_RE = new RegExp(String.raw`^~?\s*(${NUM})\s*(.*)$`, "i");
 var UNKNOWN_RE = /^(?:\?|unknown|unk|n\/a)\s*(.*)$/i;
-function parseQuantity(text) {
-  const t = text.trim().replace(/°\s*/g, "\xB0");
+function parseQuantity(text2) {
+  const t = text2.trim().replace(/°\s*/g, "\xB0");
   const unk = UNKNOWN_RE.exec(t);
   if (unk) return unknownQty(unk[1]?.trim() || "count");
   const r = RANGE_RE.exec(t);
@@ -36704,8 +36704,8 @@ function toMs(value, unit) {
   if (dimensionOf(unit) !== "time") return void 0;
   return convertValue(value, unit, "ms");
 }
-function parseDuration(text) {
-  const t = text.trim();
+function parseDuration(text2) {
+  const t = text2.trim();
   let m = TYPICAL_WITH_RANGE.exec(t);
   if (m) {
     const unitTypical = m[2] ?? m[5];
@@ -36889,6 +36889,8 @@ var PlanTemplateSchema = external_exports.object({
    * (nutrients, cost, allergens) are attributed to it when deriving claims.
    */
   primaryOutput: ResourceRefSchema.optional(),
+  /** Where this came from, credited and linked wherever the plan is shown or shared. Part of the content. */
+  source: external_exports.object({ url: external_exports.string().optional(), title: external_exports.string().optional(), author: external_exports.string().optional() }).strict().optional(),
   tags: external_exports.array(external_exports.string())
 }).strict();
 var ChoiceOptionSchema = external_exports.object({
@@ -37373,11 +37375,11 @@ function hashTemplate(t) {
 
 // packages/core/src/model/vocabulary.ts
 var STOP = /* @__PURE__ */ new Set(["a", "an", "the", "of", "some", "fresh", "large", "small", "medium"]);
-function slugify2(text) {
-  return text.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+function slugify2(text2) {
+  return text2.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
-function singularSlug(slug) {
-  const parts = slug.split("-");
+function singularSlug(slug2) {
+  const parts = slug2.split("-");
   const last = parts[parts.length - 1];
   let s = last;
   if (/[^aeiou]ies$/.test(last)) s = last.slice(0, -3) + "y";
@@ -37386,8 +37388,8 @@ function singularSlug(slug) {
   parts[parts.length - 1] = s;
   return parts.join("-");
 }
-function tokens(slug) {
-  return slug.split("-").filter((t) => t && !STOP.has(t)).map((t) => singularSlug(t));
+function tokens(slug2) {
+  return slug2.split("-").filter((t) => t && !STOP.has(t)).map((t) => singularSlug(t));
 }
 function termSimilarity(a, b) {
   const ta = expandAbbreviations(tokens(a), tokens(b));
@@ -37517,21 +37519,21 @@ function setLineage(lib, id, hash2, opts = {}) {
   const lineage = { id, head: hash2, history: [...prev?.history ?? [], entry] };
   return { ...lib, lineages: { ...lib.lineages, [id]: deepFreeze(lineage) } };
 }
-function resolveTerm(lib, text) {
-  const slug = slugify2(text);
-  const exact = lib.aliases[slug] ?? lib.aliases[singularSlug(slug)];
+function resolveTerm(lib, text2) {
+  const slug2 = slugify2(text2);
+  const exact = lib.aliases[slug2] ?? lib.aliases[singularSlug(slug2)];
   const candidates = [];
   for (const term of Object.values(lib.terms)) {
     if (term.id === exact) continue;
-    let best = termSimilarity(slug, term.id);
-    for (const a of term.aliases) best = Math.max(best, termSimilarity(slug, a));
+    let best = termSimilarity(slug2, term.id);
+    for (const a of term.aliases) best = Math.max(best, termSimilarity(slug2, a));
     if (best >= 0.34) candidates.push({ id: term.id, label: term.label, score: Math.round(best * 100) / 100 });
   }
   candidates.sort((a, b) => b.score - a.score || lib.terms[b.id].uses - lib.terms[a.id].uses);
   return { id: exact, candidates: candidates.slice(0, 5) };
 }
-function ensureTerm(lib, text, opts = {}) {
-  const r = resolveTerm(lib, text);
+function ensureTerm(lib, text2, opts = {}) {
+  const r = resolveTerm(lib, text2);
   if (r.id) {
     const existing = lib.terms[r.id];
     const rank = (k) => k === "place" ? 4 : k === "equipment" ? 3 : k === "actor" ? 2 : k === "object" ? 1 : k === "consumable" ? 0 : -1;
@@ -37544,9 +37546,9 @@ function ensureTerm(lib, text, opts = {}) {
     }
     return { lib, id: r.id, minted: false };
   }
-  const id = slugify2(text);
-  if (!id) throw new LibraryError(`Cannot make a resource name from "${text}"`);
-  const term = { id, label: text.trim(), aliases: [], provisional: opts.provisional ?? true, uses: 0 };
+  const id = slugify2(text2);
+  if (!id) throw new LibraryError(`Cannot make a resource name from "${text2}"`);
+  const term = { id, label: text2.trim(), aliases: [], provisional: opts.provisional ?? true, uses: 0 };
   if (opts.dimension) term.dimension = opts.dimension;
   if (opts.kind) term.kind = opts.kind;
   const aliases = { ...lib.aliases, [id]: id };
@@ -37799,7 +37801,7 @@ function unplaced(key) {
   const i = key.indexOf(" at ");
   return i < 0 ? { resource: key, place: void 0 } : { resource: key.slice(0, i), place: key.slice(i + 4) };
 }
-function simulateLedger(lib, steps, opts = {}) {
+function simulateLedger(lib, steps2, opts = {}) {
   const accounts = /* @__PURE__ */ new Map();
   const diagnostics = [];
   const rawUnit = /* @__PURE__ */ new Map();
@@ -37841,19 +37843,19 @@ function simulateLedger(lib, steps, opts = {}) {
   const holds = [];
   const reqWindows = [];
   const unknownConsumed = /* @__PURE__ */ new Set();
-  const producedSomewhere = new Set(steps.flatMap((s) => [
+  const producedSomewhere = new Set(steps2.flatMap((s) => [
     ...s.step.produces.map((f) => placedKey(f.resource, s.step.place)),
     ...s.step.moves.map((m) => placedKey(m.resource, m.to))
   ]));
   const madeAt = /* @__PURE__ */ new Map();
-  for (const st of steps) {
+  for (const st of steps2) {
     for (const f of st.step.produces) madeAt.set(f.resource, (madeAt.get(f.resource) ?? /* @__PURE__ */ new Set()).add(st.step.place ?? "home"));
     for (const m of st.step.moves) madeAt.set(m.resource, (madeAt.get(m.resource) ?? /* @__PURE__ */ new Set()).add(m.to ?? "home"));
   }
   const inTransit = /* @__PURE__ */ new Map();
   const drawn = /* @__PURE__ */ new Map();
   const absorbed = {};
-  for (const s of steps) {
+  for (const s of steps2) {
     const here2 = (resource) => placedKey(resource, s.step.place);
     events.push({ t: s.end, order: 0, run: () => produceAll(s) });
     if (s.step.moves.length) {
@@ -38075,7 +38077,7 @@ function simulateLedger(lib, steps, opts = {}) {
   for (const w of reqWindows) {
     const a = accounts.get(w.key);
     if (a && a.hi <= 0 && a.everProduced) {
-      const consumersInside = steps.filter((s) => s.start > w.start && s.start < w.end && s.step.consumes.some((f) => placedKey(f.resource, s.step.place) === w.key));
+      const consumersInside = steps2.filter((s) => s.start > w.start && s.start < w.end && s.step.consumes.some((f) => placedKey(f.resource, s.step.place) === w.key));
       for (const c of consumersInside) {
         diagnostics.push(diag(
           "requirement-unmet",
@@ -38123,7 +38125,7 @@ function simulateLedger(lib, steps, opts = {}) {
   }
   inputs.sort((x, y) => x.neededAt - y.neededAt || x.resource.localeCompare(y.resource));
   outputs.sort((x, y) => x.resource.localeCompare(y.resource));
-  for (const s of steps) {
+  for (const s of steps2) {
     if (s.step.produces.length > 0 || absorbed[s.path]) continue;
     const byVia = drawn.get(s.path);
     if (!byVia) continue;
@@ -38504,23 +38506,23 @@ function scheduleOnce(root, opts, release) {
     }
   }
   const spans = {};
-  const steps = [];
+  const steps2 = [];
   for (const o of all) {
     if (o.step) {
       const s = startOf.get(o.path);
       const n = nodes.get(o.path);
       spans[o.path] = { start: s, end: s + n.dur };
       const step = n.dur === o.step.duration.typical ? o.step : { ...o.step, duration: { min: n.dur, typical: n.dur, max: n.dur } };
-      steps.push({ path: o.path, step, start: s, end: s + n.dur });
+      steps2.push({ path: o.path, step, start: s, end: s + n.dur });
     } else {
       spans[o.path] = { start: startOf.get(o.path + START), end: startOf.get(o.path + END) };
     }
   }
   const handsFree = (x) => x.step.attention === "passive" ? 0 : 1;
-  steps.sort((a, b) => a.start - b.start || handsFree(a) - handsFree(b) || a.end - b.end);
+  steps2.sort((a, b) => a.start - b.start || handsFree(a) - handsFree(b) || a.end - b.end);
   const rootSpan = spans[root.path];
   return {
-    schedule: { start: rootSpan.start, end: rootSpan.end, spans, steps, constraints, diagnostics },
+    schedule: { start: rootSpan.start, end: rootSpan.end, spans, steps: steps2, constraints, diagnostics },
     nodes,
     startOf,
     pointOf
@@ -38698,6 +38700,7 @@ var AuthorNodeSchema = external_exports.object({
   parallel: external_exports.boolean().optional().describe("For nodes with steps: children have no default order (only data-flow and explicit `after`)."),
   yields: QuantityText.optional().describe('What one run makes, e.g. "4 servings" or "1 loaf".'),
   makes: external_exports.string().optional().describe('The resource this exists to produce, e.g. "sandwich loaf".'),
+  source: external_exports.object({ url: external_exports.string().optional(), title: external_exports.string().optional(), author: external_exports.string().optional() }).strict().optional().describe(`Credit for a plan based on someone else's recipe or guide: {"url", "title", "author"}. Shown with the plan.`),
   scale: external_exports.number().positive().optional().describe("Scale this node (e.g. 2 = double the recipe)."),
   use: external_exports.string().optional().describe("Reuse a saved template by id instead of writing it inline."),
   get steps() {
@@ -38926,8 +38929,8 @@ function compile2(lib0, input2, opts = {}) {
     }
     return put(t, node2);
   }
-  function placeId(text, where) {
-    const r = ensureTerm(lib, text, { kind: "place" });
+  function placeId(text2, where) {
+    const r = ensureTerm(lib, text2, { kind: "place" });
     lib = r.lib;
     if (r.minted && !minted.has(r.id)) {
       minted.add(r.id);
@@ -38936,13 +38939,13 @@ function compile2(lib0, input2, opts = {}) {
     return r.id;
   }
   function compilePlan(node2, where) {
-    const steps = node2.steps ?? [];
-    const keys = uniqueKeys(steps, where);
+    const steps2 = node2.steps ?? [];
+    const keys = uniqueKeys(steps2, where);
     const children = [];
     const edges = [];
     const known = new Set(keys);
     let lastChained;
-    steps.forEach((s, i) => {
+    steps2.forEach((s, i) => {
       const key = keys[i];
       const h = compileNode(s, j(where, key));
       if (!h) return;
@@ -38979,6 +38982,7 @@ function compile2(lib0, input2, opts = {}) {
     if (node2.description) t.description = node2.description;
     if (node2.yields !== void 0) t.yields = quantity(node2.yields, `${where} yields`);
     if (node2.makes) t.primaryOutput = resourceRef(node2.makes, where, "consumable");
+    if (node2.source) t.source = { ...node2.source };
     return put(t, node2);
   }
   function uniqueKeys(nodes, where) {
@@ -39137,8 +39141,8 @@ function scopeGroups(ctx, c) {
       return compositionItems(merged);
     }
     const paths = new Set(occs.flatMap((o) => flatten(o).map((x) => x.path)));
-    const steps = ctx.schedule.steps.filter((s) => paths.has(s.path));
-    return simulateLedger(ctx.lib, steps).inputs.filter((i) => !i.presenceOnly).map((i) => ({ resource: i.resource, qty: i.qty }));
+    const steps2 = ctx.schedule.steps.filter((s) => paths.has(s.path));
+    return simulateLedger(ctx.lib, steps2).inputs.filter((i) => !i.presenceOnly).map((i) => ({ resource: i.resource, qty: i.qty }));
   };
   if (!scope.tag) return [{ label: "(plan)", items: itemsFor([ctx.root]), servings: servingsOf(ctx.root) }];
   const tagged = flatten(ctx.root).filter((o) => o.template.tags.includes(scope.tag));
@@ -39615,8 +39619,8 @@ function analyzePlan(lib, root, opts = {}) {
     const placeId = (phrase) => phraseToRef(lib, phrase);
     const travel = /* @__PURE__ */ new Map();
     for (const [from, info] of Object.entries(p?.places ?? {})) {
-      for (const [to, text] of Object.entries(info.travel ?? {})) {
-        const d = parseDuration(text);
+      for (const [to, text2] of Object.entries(info.travel ?? {})) {
+        const d = parseDuration(text2);
         if (!d) continue;
         const x = placeId(from);
         const y = placeId(to);
@@ -39721,12 +39725,12 @@ function analyzePlan(lib, root, opts = {}) {
       }
     }
     for (const st of sch.steps) {
-      const text = `${st.step.name} ${st.step.template.instructions ?? ""}`.toLowerCase();
+      const text2 = `${st.step.name} ${st.step.template.instructions ?? ""}`.toLowerCase();
       const linked = new Set([...st.step.consumes, ...st.step.requires, ...st.step.uses, ...st.step.moves].map((f) => parseRef(f.resource).id));
       for (const [id, makers] of producedBy) {
         if (linked.has(id)) continue;
         const words = (lib.terms[id]?.label ?? id.replace(/-/g, " ")).toLowerCase();
-        if (words.length < 4 || !new RegExp(`\\b${words.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(text)) continue;
+        if (words.length < 4 || !new RegExp(`\\b${words.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(text2)) continue;
         const later = makers.filter((m) => m.path !== st.path && m.end > st.start + 6e4);
         if (!later.length || makers.some((m) => m.path !== st.path && m.end <= st.start)) continue;
         diagnostics.push(diag(
@@ -39884,6 +39888,14 @@ function renderPlan(a, opts = {}, lib) {
   };
   const activeMs = s.steps.filter((x) => x.step.attention === "active").reduce((sum, x) => sum + (x.end - x.start), 0);
   lines.push(`# ${a.root.template.name}`);
+  const credits = /* @__PURE__ */ new Map();
+  for (const o of flatten(a.root)) {
+    const src = o.template.kind === "plan" ? o.template.source : void 0;
+    if (!src) continue;
+    const text2 = [src.title ?? o.template.name, src.author ? `by ${src.author}` : "", src.url ?? ""].filter(Boolean).join(" \xB7 ");
+    credits.set(src.url ?? text2, text2);
+  }
+  if (credits.size) lines.push(`Based on: ${[...credits.values()].join("; ")}`);
   if (opts.clock) {
     const fmt3 = (t) => {
       try {
@@ -40088,6 +40100,7 @@ function decompile(lib, hash2, opts = {}) {
         if (t.description) n.description = t.description;
         if (t.yields) n.yields = q(t.yields);
         if (t.primaryOutput) n.makes = t.primaryOutput;
+        if (t.source) n.source = { ...t.source };
         const parallel = isParallel(t);
         if (parallel) n.parallel = true;
         let lastChained;
@@ -40122,6 +40135,7 @@ function decompile(lib, hash2, opts = {}) {
           if (body.parallel) n.parallel = true;
           if (body.yields !== void 0) n.yields = body.yields;
           if (body.makes) n.makes = body.makes;
+          if (body.source) n.source = body.source;
         } else n.steps = [body];
         return n;
       }
@@ -40289,6 +40303,317 @@ function claimsFromFood(f, resource) {
     out.push({ subject: resource, property: "equivalence", value: { lo: grams, hi: grams, unit: "g" }, per, source: { ...source, title: `${source.title} \u2014 ${amount} ${desc}` } });
   }
   return out;
+}
+
+// packages/mcp/dist/recipe.js
+function extractRecipe(html, pageUrl) {
+  const blocks = [...html.matchAll(/<script[^>]*type\s*=\s*["']?application\/ld\+json["']?[^>]*>([\s\S]*?)<\/script>/gi)];
+  for (const b of blocks) {
+    const raw = b[1].replace(/^\s*<!--|-->\s*$/g, "").replace(/^\s*\/\/<!\[CDATA\[|\/\/\]\]>\s*$/g, "").trim();
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      continue;
+    }
+    const node2 = findRecipe(data);
+    if (node2)
+      return readRecipe(node2, data, pageUrl);
+  }
+  return void 0;
+}
+function isType(n, t) {
+  const ty = n["@type"];
+  return ty === t || Array.isArray(ty) && ty.includes(t);
+}
+function findRecipe(d, depth = 0) {
+  if (depth > 6 || d === null || typeof d !== "object")
+    return void 0;
+  if (Array.isArray(d)) {
+    for (const x of d) {
+      const r = findRecipe(x, depth + 1);
+      if (r)
+        return r;
+    }
+    return void 0;
+  }
+  if (isType(d, "Recipe"))
+    return d;
+  for (const k of ["@graph", "mainEntity", "mainEntityOfPage", "itemListElement"]) {
+    const r = d[k] !== void 0 ? findRecipe(d[k], depth + 1) : void 0;
+    if (r)
+      return r;
+  }
+  return void 0;
+}
+var ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", frac12: "\xBD", frac14: "\xBC", frac34: "\xBE", deg: "\xB0", ndash: "\u2013", mdash: "\u2014", hellip: "\u2026", rsquo: "\u2019", lsquo: "\u2018", rdquo: "\u201D", ldquo: "\u201C" };
+function plain(s) {
+  return s.replace(/<[^>]+>/g, " ").replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d))).replace(/&([a-z]+\d*);/gi, (m, n) => ENTITIES[n.toLowerCase()] ?? m).replace(/\s+/g, " ").trim();
+}
+function text(v) {
+  if (v === void 0 || v === null)
+    return void 0;
+  if (typeof v === "string")
+    return plain(v) || void 0;
+  if (typeof v === "number")
+    return String(v);
+  if (Array.isArray(v))
+    return v.map(text).filter(Boolean).join(", ") || void 0;
+  if (typeof v === "object")
+    return text(v["name"] ?? v["text"] ?? v["@value"]);
+  return void 0;
+}
+function isoDuration(v) {
+  if (!v)
+    return void 0;
+  const m = /^P(?:(\d+(?:\.\d+)?)D)?(?:T(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?)?$/i.exec(v.trim());
+  if (!m)
+    return v;
+  const [d, h, mi, s] = [m[1], m[2], m[3], m[4]].map((x) => x ? Number(x) : 0);
+  let minutes = (d ?? 0) * 1440 + (h ?? 0) * 60 + (mi ?? 0) + Math.round((s ?? 0) / 60);
+  if (minutes === 0)
+    return void 0;
+  const parts = [];
+  const days = Math.floor(minutes / 1440);
+  minutes -= days * 1440;
+  const hours = Math.floor(minutes / 60);
+  minutes -= hours * 60;
+  if (days)
+    parts.push(`${days} day${days > 1 ? "s" : ""}`);
+  if (hours)
+    parts.push(`${hours} h`);
+  if (minutes)
+    parts.push(`${minutes} min`);
+  return parts.join(" ");
+}
+function steps(v) {
+  if (v === void 0 || v === null)
+    return [];
+  if (typeof v === "string") {
+    const t = v.replace(/<\/(p|li)>/gi, "\n").replace(/<br\s*\/?>/gi, "\n");
+    return [{ steps: t.split(/\n+/).map(plain).filter(Boolean) }];
+  }
+  if (!Array.isArray(v))
+    v = [v];
+  const out = [];
+  let loose = [];
+  for (const x of v) {
+    if (x && typeof x === "object" && !Array.isArray(x) && isType(x, "HowToSection")) {
+      if (loose.length) {
+        out.push({ steps: loose });
+        loose = [];
+      }
+      const inner = steps(x["itemListElement"]).flatMap((s) => s.steps);
+      const section = text(x["name"]);
+      out.push(section ? { section, steps: inner } : { steps: inner });
+    } else {
+      const t = typeof x === "string" ? plain(x) : x && typeof x === "object" && !Array.isArray(x) ? text(x["text"] ?? x["name"]) : void 0;
+      if (t)
+        loose.push(t);
+    }
+  }
+  if (loose.length)
+    out.push({ steps: loose });
+  return out;
+}
+function readRecipe(r, all, pageUrl) {
+  const lines = Array.isArray(r["recipeIngredient"]) ? r["recipeIngredient"] : Array.isArray(r["ingredients"]) ? r["ingredients"] : [];
+  const yields = Array.isArray(r["recipeYield"]) ? r["recipeYield"].map(text).find((t2) => t2 && /[a-z]/i.test(t2)) ?? text(r["recipeYield"][0]) : text(r["recipeYield"]);
+  const site = siteName(all) ?? text(r["publisher"]);
+  const out = {
+    name: text(r["name"]) ?? "Imported recipe",
+    ingredients: lines.map((l) => parseIngredient(text(l) ?? "")).filter((i) => i.line),
+    instructions: steps(r["recipeInstructions"])
+  };
+  const url2 = text(r["url"]) ?? pageUrl;
+  if (url2)
+    out.url = /^https?:/i.test(url2) ? url2 : pageUrl ?? url2;
+  if (site)
+    out.site = site;
+  const author = text(r["author"]);
+  if (author)
+    out.author = author;
+  if (yields)
+    out.yields = /^\d+(\.\d+)?$/.test(yields) ? `${yields} servings` : yields;
+  const [p, c, t] = ["prepTime", "cookTime", "totalTime"].map((k) => isoDuration(text(r[k])));
+  if (p)
+    out.prepTime = p;
+  if (c)
+    out.cookTime = c;
+  if (t)
+    out.totalTime = t;
+  return out;
+}
+function siteName(all) {
+  const nodes = Array.isArray(all) ? all : all && typeof all === "object" && Array.isArray(all["@graph"]) ? all["@graph"] : [];
+  for (const n of nodes)
+    if (n && typeof n === "object" && !Array.isArray(n) && isType(n, "WebSite"))
+      return text(n["name"]);
+  return void 0;
+}
+var COUNT_UNITS = /* @__PURE__ */ new Set([
+  "clove",
+  "can",
+  "package",
+  "pkg",
+  "pinch",
+  "dash",
+  "slice",
+  "stick",
+  "bunch",
+  "head",
+  "sprig",
+  "piece",
+  "jar",
+  "bottle",
+  "bag",
+  "box",
+  "handful",
+  "stalk",
+  "rib",
+  "sheet",
+  "envelope",
+  "container",
+  "carton",
+  "loaf",
+  "fillet",
+  "drop"
+]);
+var NUM2 = String.raw`(?:\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+[½⅓⅔¼¾⅕⅛⅜⅝⅞]?|[½⅓⅔¼¾⅕⅛⅜⅝⅞])`;
+var AMOUNT = new RegExp(String.raw`^(${NUM2})(?:\s*(?:-|–|—|to)\s*(${NUM2}))?\s*(.*)$`, "i");
+var singular = (w) => w.replace(/(ches|shes|sses|xes)$/i, (m) => m.slice(0, -2)).replace(/ies$/i, "y").replace(/(?<![su])s$/i, "");
+function parseIngredient(line0) {
+  const line = line0.trim();
+  if (!line)
+    return { line };
+  const notes = [];
+  let rest = line.replace(/\*/g, "");
+  for (let guard = 0; guard < 5 && /\([^()]*\)/.test(rest); guard++) {
+    rest = rest.replace(/\(([^()]*)\)/g, (_, n) => {
+      const t = n.replace(/^[\s,]+|[\s,]+$/g, "");
+      if (t && !/^note\s*\d+$/i.test(t))
+        notes.push(t);
+      return " ";
+    });
+  }
+  rest = rest.replace(/[()]/g, " ").replace(/\s+/g, " ").replace(/\s+,/g, ",").trim();
+  let qty2;
+  const isCount = (w) => !!w && COUNT_UNITS.has(singular(w.toLowerCase().replace(/\.$/, "")));
+  const lead = /^(?:an?\s+)?(\w+)\s+of\s+(.+)$/i.exec(rest);
+  if (lead && isCount(lead[1])) {
+    qty2 = `1 ${singular(lead[1].toLowerCase())}`;
+    rest = lead[2];
+  }
+  const m = qty2 ? void 0 : AMOUNT.exec(rest);
+  if (m && parseNumber(m[1]) !== void 0) {
+    const amount = m[2] ? `${m[1]}-${m[2]}` : m[1];
+    const words = m[3].trim().split(" ");
+    let unit;
+    const unitAt = () => {
+      for (const n of [2, 1]) {
+        const w = words.slice(0, n).join(" ").replace(/\.$/, "");
+        if (words.length > n && (findUnit(w) || findUnit(singular(w)))) {
+          words.splice(0, n);
+          return findUnit(w)?.id ?? findUnit(singular(w)).id;
+        }
+      }
+      return void 0;
+    };
+    unit = unitAt();
+    if (!unit && words.length > 2 && /^(small|medium|large)$/i.test(words[0]) && isCount(words[1]))
+      notes.push(words.shift().toLowerCase());
+    if (!unit && words.length > 1 && isCount(words[0]))
+      unit = singular(words.shift().toLowerCase().replace(/\.$/, ""));
+    const alt = new RegExp(String.raw`^/\s*(${NUM2}\s*\S+)\s+`).exec(words.join(" "));
+    if (alt) {
+      notes.push(alt[1]);
+      words.splice(0, words.join(" ").slice(0, alt[0].length).trim().split(" ").length);
+    }
+    if (words[0]?.toLowerCase() === "of" && words.length > 1)
+      words.shift();
+    if (!unit && words.length > 1 && isCount(words[words.length - 1].replace(/,.*$/, ""))) {
+      const last = words[words.length - 1];
+      const [w, tail] = [last.replace(/,.*$/, ""), last.includes(",") ? last.slice(last.indexOf(",")) : ""];
+      unit = singular(w.toLowerCase());
+      words.pop();
+      if (tail)
+        words[words.length - 1] += tail;
+    }
+    rest = words.join(" ");
+    qty2 = `${amount} ${unit ?? "count"}`;
+  }
+  const comma = rest.indexOf(",");
+  if (comma > 0) {
+    notes.push(rest.slice(comma + 1).trim());
+    rest = rest.slice(0, comma).trim();
+  }
+  const vague = /\b(to taste|as needed|for serving|for garnish|optional)\b/i.exec(rest);
+  if (vague) {
+    notes.push(vague[1]);
+    rest = rest.replace(vague[0], "").replace(/\s+(or|and)?\s*$/i, "").trim();
+  }
+  const out = { line };
+  if (rest)
+    out.resource = rest.toLowerCase();
+  out.qty = qty2 ?? "? count";
+  if (notes.length)
+    out.note = notes.filter(Boolean).join("; ");
+  return out;
+}
+function draftDoc(r) {
+  const consumes = {};
+  for (const i of r.ingredients) {
+    if (!i.resource)
+      continue;
+    const q2 = i.qty ?? "? count";
+    const prev = consumes[i.resource];
+    if (prev === void 0) {
+      consumes[i.resource] = q2;
+      continue;
+    }
+    const a = parseQuantity(prev), b = parseQuantity(q2);
+    const sum = a && b ? addQuantities(a, b) : void 0;
+    consumes[i.resource] = sum ? formatQuantity(sum) : `${prev} + ${q2}`;
+  }
+  const source = {};
+  if (r.url)
+    source["url"] = r.url;
+  source["title"] = r.name;
+  if (r.author)
+    source["author"] = r.author;
+  const doc = { id: slug(r.name), name: r.name };
+  if (r.yields)
+    doc["yields"] = r.yields;
+  doc["source"] = source;
+  doc["steps"] = [{ name: "TODO: replace with timed steps that consume these", time: "? min", consumes }];
+  return doc;
+}
+function slug(s) {
+  return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "recipe";
+}
+function describeImport(r) {
+  const out = [];
+  out.push(`# ${r.name}`);
+  out.push([r.site, r.author && `by ${r.author}`, r.url].filter(Boolean).join(" \xB7 "));
+  const facts = [r.yields && `yield ${r.yields}`, r.prepTime && `prep ${r.prepTime}`, r.cookTime && `cook ${r.cookTime}`, r.totalTime && `total ${r.totalTime}`].filter(Boolean);
+  if (facts.length)
+    out.push(`${facts.join(" \xB7 ")} (the page's own estimates; first-timers usually take longer)`);
+  out.push("", `## Ingredients (${r.ingredients.length})`);
+  for (const i of r.ingredients) {
+    out.push(i.resource ? `- "${i.line}" \u2192 "${i.resource}": "${i.qty}"${i.note ? ` (note: ${i.note})` : ""}` : `- "${i.line}" \u2192 (not parsed; add it by hand)`);
+  }
+  out.push("", "## The page's instructions (for you to read; write the steps in your own words)");
+  let n = 0;
+  for (const sec of r.instructions) {
+    if (sec.section)
+      out.push(`### ${sec.section}`);
+    for (const s of sec.steps)
+      out.push(`${++n}. ${s}`);
+  }
+  if (!n)
+    out.push("(none in the page data; read the page with WebFetch)");
+  out.push("", "## Draft", 'Credit and ingredients are filled in. Replace the TODO step with real steps, split so each has one time, hands busy or free, doneness cues and equipment, and move each ingredient into the step that uses it. Check every parse (names should be what you buy; "? count" means the page gave no amount). Then save_plan.', "```json", JSON.stringify(draftDoc(r), null, 2), "```");
+  return out.join("\n");
 }
 
 // packages/mcp/dist/tools.js
@@ -40511,6 +40836,31 @@ ${problems}` : "No problems found by the compiler. Next: analyze_plan.");
       store.update((s) => ({ ...s, library: lib }));
       return `Recorded ${added} of ${facts.length} fact(s).${problems.length ? `
 ${problems.map((p) => `- ${p}`).join("\n")}` : ""}`;
+    }
+  }),
+  def({
+    name: "import_recipe",
+    title: "Import a recipe from a web page",
+    description: `Read the recipe on one web page the person points you to (its schema.org data): name, yield, times, ingredient lines parsed into "consumes", the page's steps for you to read, and credit. Returns a draft plan with the credit filled in; you write the timed steps. One page per request.`,
+    input: { url: external_exports.string().url().describe('The recipe page, e.g. "https://example.com/recipes/weeknight-chili"') },
+    run: async ({ url: url2 }) => {
+      let html;
+      try {
+        const res = await fetch(url2, {
+          headers: { "user-agent": "about-time-recipe-import/1 (one page, on request)", accept: "text/html,application/xhtml+xml" },
+          redirect: "follow",
+          signal: AbortSignal.timeout(2e4)
+        });
+        if (!res.ok)
+          return `The page answered ${res.status} ${res.statusText}. Some sites refuse automated readers: read it with WebFetch and author the plan from that, crediting the page in "source".`;
+        html = (await res.text()).slice(0, 5e6);
+      } catch (e) {
+        return `Could not fetch ${url2}: ${e.message}. Read it with WebFetch instead, and credit it in "source".`;
+      }
+      const r = extractRecipe(html, url2);
+      if (!r)
+        return `No structured recipe on ${url2} (no schema.org Recipe data). Read it with WebFetch and author the plan by hand, crediting the page in "source": {"url": "${url2}", "title": "\u2026"}.`;
+      return describeImport(r);
     }
   }),
   def({
@@ -40791,8 +41141,8 @@ function createServer(store, version2 = "0.0.0") {
   for (const t of tools) {
     server.registerTool(t.name, { title: t.title, description: t.description, inputSchema: t.input }, async (args) => {
       try {
-        const text = t.run(args, store);
-        return { content: [{ type: "text", text }] };
+        const text2 = await t.run(args, store);
+        return { content: [{ type: "text", text: text2 }] };
       } catch (e) {
         return { content: [{ type: "text", text: `Error: ${e.message}` }], isError: true };
       }

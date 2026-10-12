@@ -4,7 +4,7 @@ import {
   FileStore,
   JSONRPCMessageSchema,
   createServer
-} from "./chunk-LARGBCJY.js";
+} from "./chunk-ZY5Q73E3.js";
 
 // packages/mcp/dist/bin.js
 import { readFileSync } from "node:fs";

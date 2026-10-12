@@ -9,6 +9,14 @@
    **and** sensory cues ("until golden"). Judge fit against the profile *before* investing in a candidate. Check the
    cuisine, the total time, the equipment, the cost, and the ingredients that conflict with constraints. Look for hidden
    ones too: sauces, spice blends and stocks often hide allergens.
+   **If the person gives you a recipe page** (their favorite, or one they found), call `import_recipe(url)`. It returns the
+   page's ingredients parsed into `consumes`, its times, its steps for you to read, and a draft that credits the page in
+   `source`. Recipes leave out what a first-timer needs, so you supply it: split the steps so each has one time, mark
+   which waits are hands-free, add doneness cues and equipment, and write the instructions in your own words. Don't paste
+   the page's text. Keep `source`, because the person sees the credit and link. If a page can't be imported, read it
+   with WebFetch, author it by hand, and still credit it in `source`.
+   **For a meal from several recipes**, save each one with an `id` and `yields`, then combine them in a parallel group
+   that `use`s them, so they share the shopping list and are scheduled to finish together.
 
 3. **Write the plan** (see `guide("authoring")` and `guide("quality")`):
    - Mirror the source's structure as a hierarchy. Group steps the way a person thinks of them ("Make the dough", then

@@ -24,6 +24,7 @@ A plan is a JSON node. A node is one of these:
 | `ifThen` | Mistake recovery | `[{"if": "Pancakes brown before bubbling", "then": "Lower heat to medium-low"}]` |
 | `safety`, `tips` | Short strings | |
 | `tags` | Free labels. Use `"meal"` for eating events | `["meal"]` |
+| `source` | On a plan: credit for someone else's recipe or guide, shown with the plan | `{"url": "https://…", "title": "…", "author": "…"}` |
 
 **States.** `"butter (melted)"` and `"butter@melted"` mean the resource *butter* in state *melted*. A step that
 melts butter `consumes {"butter": "4 tbsp"}` and `produces {"butter (melted)": "4 tbsp"}`. Equipment works the same
